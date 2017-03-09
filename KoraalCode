@@ -1,0 +1,30 @@
+remove(list=ls())     # Remove all variables from memory
+
+
+
+# --- Parameter values -------------------------------------------------------
+#POM parameters
+perDP = #perentage sponge conversion DOM -> POM 0
+perCPom = #perentage POM consumption by coral
+perPDif = #percentage POM diffusion out of the system
+incomePOM = #amount of incoming POM from outside the system
+  
+#DOM parameters
+perDD = #perentage sponge shedding of DOM
+perCDom = #perentage DOM release by coral
+perDDif = #percentage DOM diffusion out of the system
+incomeDOM = #amount of incoming DOM from outside the system
+  
+#Cover parameters
+GrC = #natural coral growth rate
+GrA = #natural algae growth rate
+GrS = #natural sponge growth rate
+  
+ACComp = #Competition strength between algae and coral
+SCComp = #Competition strength between sponges and coral
+ASComp = #Competition strength between algae and sponge
+
+
+  
+
+
