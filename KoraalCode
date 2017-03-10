@@ -31,20 +31,20 @@ ASComp = 0.4 #Competition strength between algae and sponge
 # --- Initial values -------------------------------------------------------
 POM = 10 #Initial POM concentration
 DOM = 10 #Initial DOM concentration
-DCoral = 600 #Initial coral density
-DSponge = 500 #Initial sponge density
-DAlgae = 400 #Initial algal concentration
+DCoral = 100 #Initial coral density
+DSponge = 100 #Initial sponge density
+DAlgae = 100 #Initial algal concentration
 TSpace = 1000 #total amount of space
 ESpace = TSpace-DAlgae-DSponge-DCoral;
 
 
 # --- Functions -------------------------------------------------------
 #ESpace = function(TSpace,DCoral,DSponge,DAlgae){TSpace-DCoral-DSponge-DAlgae} #Available space
-dtPOM = function(DSponge,perSDPC,DCoral,perCPU,POM,perPOut,inP){DSponge*perSDPC-DCoral*perCPU-POM*perPOut+inP} #change in POM in time
-dtDOM = function(DCoral,perCDR,DAlgae,perADR,perADU,DSponge,perSDU,perDOut,inD){DCoral*perCDR+DAlgae*(perADR-perADU)-DSponge*perSDU-perDOut+inD} #change in DOM in time
-dtC = function(GrC,DCoral,TSpace){GrC*DCoral*(ESpace/TSpace)}#change in coral density in time
-dtA = function(GrA,DAlgae,TSpace){GrA*DAlgae*(ESpace/TSpace)}#change in algal density in time
-dtS = function(GrC,DSponge,TSpace){GrC*DSponge*(ESpace/TSpace)}#change in sponge density in time
+dtPOM = function(DSponge,DCoral,POM){DSponge*perSDPC-DCoral*perCPU-POM*perPOut+inP} #change in POM in time
+dtDOM = function(DCoral,DAlgae,DSponge){DCoral*perCDR+DAlgae*(perADR-perADU)-DSponge*perSDU-perDOut+inD} #change in DOM in time
+dtC = function(DCoral){GrC*DCoral*(ESpace/TSpace)}#change in coral density in time
+dtA = function(DAlgae){GrA*DAlgae*(ESpace/TSpace)}#change in algal density in time
+dtS = function(DSponge){GrC*DSponge*(ESpace/TSpace)}#change in sponge density in time
   
 
 # --- Simulation parameters ---------------------------------------------------
@@ -63,19 +63,22 @@ par(mfrow=c(1,2))
 # --- Main simulation loop ----------------------------------------------------
 for(Time in 2:(EndTime/dT))
 {
-  ESpace = TSpace-DAlgae[Time-1]-DSponge[Time-1]-DCoral[Time-1];
+  ESpace = TSpace-DAlgae[Time-1]-DSponge[Time-1]-DCoral[Time-1]
   #ESpace[Time] = ESpace(TSpace[Time-1],DCoral[Time-1],DSponge[Time-1],DAlgae[Time-1])
-  POM[Time] = POM[Time-1]+dtPOM(DSponge[Time-1],perSDPC,DCoral[Time-1],perCPU,POM[Time-1],perPOut,inP);
-  DOM[Time] = DOM[Time-1]+dtDOM(DCoral[Time-1],perCDR,DAlgae[Time-1],perADR,perADU,DSponge[Time-1],perSDU,perDOut,inD);
-  DCoral[Time] = DCoral[Time-1]+dtC(GrC,DCoral[Time-1],TSpace[Time-1])
-  DAlgae[Time] = DAlgae[Time-1]+dtA(GrA,DAlgae[Time-1],TSpace[Time-1])
-  DSponge[Time] = DSponge[Time-1]+dtS(GrC,DSponge[Time-1],TSpace[Time-1])
+  POM[Time] = POM[Time-1]+dtPOM(DSponge[Time-1],DCoral[Time-1],POM[Time-1])
+  DOM[Time] = DOM[Time-1]+dtDOM(DCoral[Time-1],DAlgae[Time-1],DSponge[Time-1])
+  DCoral[Time] = DCoral[Time-1]+dtC(DCoral[Time-1])
+  DAlgae[Time] = DAlgae[Time-1]+dtA(DAlgae[Time-1])
+  DSponge[Time] = DSponge[Time-1]+dtS(DSponge[Time-1])
+  
+  print(ESpace)
 }
 
 print(DAlgae[3])
+
 print(Time)
 # --- The Density plot -------------------------------------------------
-Time=seq(1:EndTime)
+Time = seq(1:EndTime)
 
 # Plotting the graph with the coral density line
 plot(Time, DCoral, type="l",
