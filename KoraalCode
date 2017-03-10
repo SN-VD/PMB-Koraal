@@ -4,27 +4,48 @@ remove(list=ls())     # Remove all variables from memory
 
 # --- Parameter values -------------------------------------------------------
 #POM parameters
-perDP = #perentage sponge conversion DOM -> POM 0
-perCPom = #perentage POM consumption by coral
-perPDif = #percentage POM diffusion out of the system
-incomePOM = #amount of incoming POM from outside the system
+perSDPC = 0 #perentage sponge conversion DOM -> POM
+perSPR = #perentage sponge shedding/release of POM
+perCPU = 0.2#perentage maximum POM consumption/uptake by coral
+perPOut = #percentage POM diffusion out of the system
+inP = #amount of incoming POM from outside the system
   
 #DOM parameters
-perDD = #perentage sponge shedding of DOM
-perCDom = #perentage DOM release by coral
-perDDif = #percentage DOM diffusion out of the system
-incomeDOM = #amount of incoming DOM from outside the system
-  
+perSDU = #perentage sponge uptake of DOM
+perADU = #perentage algal uptake of DOM
+perADR = #perentage algal release of DOM
+perCDR = #perentage coral release of DOM
+perDOut = #percentage DOM diffusion out of the system
+inD = #amount of incoming DOM from outside the system
+
 #Cover parameters
 GrC = #natural coral growth rate
-GrA = #natural algae growth rate
+GrA = #natural algal growth rate
 GrS = #natural sponge growth rate
   
+#Competition parameters
 ACComp = #Competition strength between algae and coral
 SCComp = #Competition strength between sponges and coral
 ASComp = #Competition strength between algae and sponge
 
 
+# --- Initial values -------------------------------------------------------
+POM = #Initial POM concentration
+DOM = #Initial DOM concentration
+DCoral = #Initial coral density
+DSponge = #Initial sponge density
+DAlgae = #Initial algal concentration
+TSpace = #total amount of space
+
+
+# --- Functions -------------------------------------------------------
+dtPOM = DSponge*perSDPC-DCoral*perCPU-POM*perPOut+inP #change in POM in time
+dtDOM = DCoral*perCDR+DAlgae*(perADR-perADU)-DSponge*perSDU-perDOut+inD#change in DOM in time
+dtDC = #change in coral density in time
+dtDA = #change in algal density in time
+dtDS = #change in sponge density in time
   
-
-
+  
+# --- Simulation parameters ---------------------------------------------------
+dT      =   # timestep 
+EndTime =   # end time
