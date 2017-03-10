@@ -1,7 +1,6 @@
 remove(list=ls())     # Remove all variables from memory
 
 
-
 # --- Parameter values -------------------------------------------------------
 #POM parameters
 perSDPC = 0 #perentage sponge conversion DOM -> POM
@@ -39,13 +38,76 @@ TSpace = #total amount of space
 
 
 # --- Functions -------------------------------------------------------
-dtPOM = DSponge*perSDPC-DCoral*perCPU-POM*perPOut+inP #change in POM in time
-dtDOM = DCoral*perCDR+DAlgae*(perADR-perADU)-DSponge*perSDU-perDOut+inD#change in DOM in time
-dtDC = #change in coral density in time
-dtDA = #change in algal density in time
-dtDS = #change in sponge density in time
+ESpace = function(TSpace,DCoral,DSponge,DAlgae){TSpace-DCoral-DSponge-DAlgae} #Available space
+dtPOM = function(DSponge,perSDPC,DCoral,perCPU,POM,perPOut,inP){DSponge*perSDPC-DCoral*perCPU-POM*perPOut+inP} #change in POM in time
+dtDOM = function(DCoral,perCDR,DAlgae,perADR,perADU,DSponge,perSDU,perDOut,inD){DCoral*perCDR+DAlgae*(perADR-perADU)-DSponge*perSDU-perDOut+inD} #change in DOM in time
+dtC = function(GrC,DCoral,ESpace,TSpace){GrC*DCoral*(ESpace/TSpace)}#change in coral density in time
+dtA = function(GrA,DAlgae,ESpace,TSpace){GrA*DAlgae*(ESpace/TSpace)}#change in algal density in time
+dtS = function(GrC,DSponge,ESpace,TSpace){GrC*DSponge*(ESpace/TSpace)}#change in sponge density in time
   
-  
+
 # --- Simulation parameters ---------------------------------------------------
 dT      =   # timestep 
 EndTime =   # end time
+  
+
+# --- Graphics settings -------------------------------------------------------
+WinWidth   = 100   # Width of the simulation window 
+WinHeight  = 100    # Height of the simulation window
+#P_max  = 20           # Maximal Y-axis value for the phase plot 
+#N_max  = 100          # Maximal X-axis value for the phase plot 
+
+win.graph(width=Width, height=Height)
+par(mfrow=c(1,2))
+  
+# --- Main simulation loop ----------------------------------------------------
+for(Time in 1:(EndTime/dT)){
+  Espace[Time] = ESpace(TSpace[Time-1],DCoral[Time-1],DSponge[Time-1],DAlgae[Time-1])
+  POM[Time] =POM[Time-1]+dtPOM(DSponge[Time-1],perSDPC,DCoral[Time-1],perCPU,POM[Time-1],perPOut,inP);
+  DOM[Time] =DOM[Time-1]+dtDOM(DCoral[Time-1],perCDR,DAlgae[Time-1],perADR,perADU,DSponge[Time-1],perSDU,perDOut,inD);
+  DCoral = DCoral[Time-1]+dtC(GrC,DCoral[Time-1],ESpace[Time],TSpace[Time-1])
+  DAlgae = DAlgae[Time-1]+dtA(GrA,DAlgae[Time-1],ESpace[Time],TSpace[Time-1])
+  DSponge = DSponge[Time-1]+dtS(GrC,DSponge[Time-1],ESpace[Time],TSpace[Time-1])
+}
+
+
+# --- The Density plot -------------------------------------------------
+
+# Plotting the graph with the coral density line
+plot(Time, DCoral, type="l",
+     main = "Density of Organisms over time",
+     bty="n", 
+     xlab="Time", col="blue",
+     ylab="Density", ylim=c(0,TSpace), xlim=c(0,EndTime)
+)
+
+# The Sponge line gets drawn here
+lines(Time, DSponge, col="red")
+
+# The Algae line gets drawn here
+lines(Time, DAlgae, col="green")
+
+# Adding a legend
+legend(300,TSpace, bty="n", lwd=1,
+       legend=c("Coral","Sponge","Algae"),
+       col=c("blue","red","green"))
+
+
+# --- The Time POM-DOM plot -------------------------------------------------
+
+# Plotting the graph with the POM line
+plot(Time, POM, type="l",
+     main = "Concentration of DOM and POM over time",
+     bty="n", 
+     xlab="Time", col="blue",
+     ylab="Concentration"
+)
+
+# The Sponge line gets drawn here
+lines(Time, DOM, col="red")
+
+# Adding a legend
+legend(300,TSpace, bty="n", lwd=1,
+       legend=c("POM","DOM"),
+       col=c("blue","red"))
+
