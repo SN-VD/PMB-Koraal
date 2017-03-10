@@ -3,75 +3,79 @@ remove(list=ls())     # Remove all variables from memory
 
 # --- Parameter values -------------------------------------------------------
 #POM parameters
-perSDPC = 0 #perentage sponge conversion DOM -> POM
-perSPR = #perentage sponge shedding/release of POM
-perCPU = 0.2#perentage maximum POM consumption/uptake by coral
-perPOut = #percentage POM diffusion out of the system
-inP = #amount of incoming POM from outside the system
+perSDPC = 0.20 #perentage sponge conversion DOM -> POM
+perSPR = 0.17 #perentage sponge shedding/release of POM
+perCPU = 0.2 #perentage maximum POM consumption/uptake by coral
+perPOut = 0.5 #percentage POM diffusion out of the system
+inP = 50 #amount of incoming POM from outside the system
   
 #DOM parameters
-perSDU = #perentage sponge uptake of DOM
+perSDU = 0.15 #perentage sponge uptake of DOM μmol.cm3.h-1
 perADU = #perentage algal uptake of DOM
-perADR = #perentage algal release of DOM
-perCDR = #perentage coral release of DOM
-perDOut = #percentage DOM diffusion out of the system
-inD = #amount of incoming DOM from outside the system
+perADR = 0.3#perentage algal release of DOM
+perCDR = 0.3 #perentage coral release of DOM
+perDOut = 0.5#percentage DOM diffusion out of the system
+inD = 20 #amount of incoming DOM from outside the system
 
 #Cover parameters
-GrC = #natural coral growth rate
-GrA = #natural algal growth rate
-GrS = #natural sponge growth rate
+GrC = 0.1 #natural coral growth rate
+GrA = 0.3 #natural algal growth rate
+GrS = 0.2 #natural sponge growth rate
   
 #Competition parameters
-ACComp = #Competition strength between algae and coral
-SCComp = #Competition strength between sponges and coral
-ASComp = #Competition strength between algae and sponge
+ACComp = 0.5 #Competition strength between algae and coral
+SCComp = 0.3 #Competition strength between sponges and coral
+ASComp = 0.4 #Competition strength between algae and sponge
 
 
 # --- Initial values -------------------------------------------------------
-POM = #Initial POM concentration
-DOM = #Initial DOM concentration
-DCoral = #Initial coral density
-DSponge = #Initial sponge density
-DAlgae = #Initial algal concentration
-TSpace = #total amount of space
+POM = 10 #Initial POM concentration
+DOM = 10 #Initial DOM concentration
+DCoral = 600 #Initial coral density
+DSponge = 500 #Initial sponge density
+DAlgae = 400 #Initial algal concentration
+TSpace = 1000 #total amount of space
+ESpace = TSpace-DAlgae-DSponge-DCoral;
 
 
 # --- Functions -------------------------------------------------------
-ESpace = function(TSpace,DCoral,DSponge,DAlgae){TSpace-DCoral-DSponge-DAlgae} #Available space
+#ESpace = function(TSpace,DCoral,DSponge,DAlgae){TSpace-DCoral-DSponge-DAlgae} #Available space
 dtPOM = function(DSponge,perSDPC,DCoral,perCPU,POM,perPOut,inP){DSponge*perSDPC-DCoral*perCPU-POM*perPOut+inP} #change in POM in time
 dtDOM = function(DCoral,perCDR,DAlgae,perADR,perADU,DSponge,perSDU,perDOut,inD){DCoral*perCDR+DAlgae*(perADR-perADU)-DSponge*perSDU-perDOut+inD} #change in DOM in time
-dtC = function(GrC,DCoral,ESpace,TSpace){GrC*DCoral*(ESpace/TSpace)}#change in coral density in time
-dtA = function(GrA,DAlgae,ESpace,TSpace){GrA*DAlgae*(ESpace/TSpace)}#change in algal density in time
-dtS = function(GrC,DSponge,ESpace,TSpace){GrC*DSponge*(ESpace/TSpace)}#change in sponge density in time
+dtC = function(GrC,DCoral,TSpace){GrC*DCoral*(ESpace/TSpace)}#change in coral density in time
+dtA = function(GrA,DAlgae,TSpace){GrA*DAlgae*(ESpace/TSpace)}#change in algal density in time
+dtS = function(GrC,DSponge,TSpace){GrC*DSponge*(ESpace/TSpace)}#change in sponge density in time
   
 
 # --- Simulation parameters ---------------------------------------------------
-dT      =   # timestep 
-EndTime =   # end time
+dT      =   1 # timestep 
+EndTime =   10 # end time
   
 
 # --- Graphics settings -------------------------------------------------------
-WinWidth   = 100   # Width of the simulation window 
-WinHeight  = 100    # Height of the simulation window
-#P_max  = 20           # Maximal Y-axis value for the phase plot 
-#N_max  = 100          # Maximal X-axis value for the phase plot 
+Width   = 100   # Width of the simulation window 
+Height  = 100    # Height of the simulation window
 
-win.graph(width=Width, height=Height)
+
+win.graph(Width, Height)
 par(mfrow=c(1,2))
   
 # --- Main simulation loop ----------------------------------------------------
-for(Time in 1:(EndTime/dT)){
-  Espace[Time] = ESpace(TSpace[Time-1],DCoral[Time-1],DSponge[Time-1],DAlgae[Time-1])
-  POM[Time] =POM[Time-1]+dtPOM(DSponge[Time-1],perSDPC,DCoral[Time-1],perCPU,POM[Time-1],perPOut,inP);
-  DOM[Time] =DOM[Time-1]+dtDOM(DCoral[Time-1],perCDR,DAlgae[Time-1],perADR,perADU,DSponge[Time-1],perSDU,perDOut,inD);
-  DCoral = DCoral[Time-1]+dtC(GrC,DCoral[Time-1],ESpace[Time],TSpace[Time-1])
-  DAlgae = DAlgae[Time-1]+dtA(GrA,DAlgae[Time-1],ESpace[Time],TSpace[Time-1])
-  DSponge = DSponge[Time-1]+dtS(GrC,DSponge[Time-1],ESpace[Time],TSpace[Time-1])
+for(Time in 2:(EndTime/dT))
+{
+  ESpace = TSpace-DAlgae[Time-1]-DSponge[Time-1]-DCoral[Time-1];
+  #ESpace[Time] = ESpace(TSpace[Time-1],DCoral[Time-1],DSponge[Time-1],DAlgae[Time-1])
+  POM[Time] = POM[Time-1]+dtPOM(DSponge[Time-1],perSDPC,DCoral[Time-1],perCPU,POM[Time-1],perPOut,inP);
+  DOM[Time] = DOM[Time-1]+dtDOM(DCoral[Time-1],perCDR,DAlgae[Time-1],perADR,perADU,DSponge[Time-1],perSDU,perDOut,inD);
+  DCoral[Time] = DCoral[Time-1]+dtC(GrC,DCoral[Time-1],TSpace[Time-1])
+  DAlgae[Time] = DAlgae[Time-1]+dtA(GrA,DAlgae[Time-1],TSpace[Time-1])
+  DSponge[Time] = DSponge[Time-1]+dtS(GrC,DSponge[Time-1],TSpace[Time-1])
 }
 
-
+print(DAlgae[3])
+print(Time)
 # --- The Density plot -------------------------------------------------
+Time=seq(1:EndTime)
 
 # Plotting the graph with the coral density line
 plot(Time, DCoral, type="l",
