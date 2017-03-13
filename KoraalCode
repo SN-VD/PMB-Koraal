@@ -40,17 +40,17 @@ ESpace = TSpace-DAlgae-DSponge-DCoral;
 
 # --- Functions -------------------------------------------------------
 #ESpace = function(TSpace,DCoral,DSponge,DAlgae){TSpace-DCoral-DSponge-DAlgae} #Available space
-dtPOM = function(DSponge,DCoral,POM){DSponge*perSDPC-DCoral*perCPU-POM*perPOut+inP} #change in POM in time
+dtPOM = function(DSponge,DCoral,POM){DSponge*perSPR-DCoral*perCPU-POM*perPOut+inP} #change in POM in time
 dtDOM = function(DCoral,DAlgae,DSponge){DCoral*perCDR+DAlgae*(perADR-perADU)-DSponge*perSDU-perDOut+inD} #change in DOM in time
-dtC = function(DCoral){GrC*DCoral*(ESpace/TSpace)}#change in coral density in time
-dtA = function(DAlgae){GrA*DAlgae*(ESpace/TSpace)}#change in algal density in time
-dtS = function(DSponge){GrC*DSponge*(ESpace/TSpace)}#change in sponge density in time
-  
+dtC = function(DCoral, DAlgae, DSponge){GrC*DCoral*(1-(DAlgae/TSpace)-(DSponge/TSpace)-(DCoral/TSpace))}#change in coral density in time
+dtA = function(DAlgae, DCoral, DSponge){GrA*DAlgae*(1-(DAlgae/TSpace)-(DSponge/TSpace)-(DCoral/TSpace))}#change in algal density in time
+dtS = function(DSponge, DAlgae, DCoral){GrC*DSponge*(1-(DAlgae/TSpace)-(DSponge/TSpace)-(DCoral/TSpace))}#change in sponge density in time
+
 
 # --- Simulation parameters ---------------------------------------------------
 dT      =   1 # timestep 
-EndTime =   10 # end time
-  
+EndTime =   30 # end time
+
 
 # --- Graphics settings -------------------------------------------------------
 Width   = 100   # Width of the simulation window 
@@ -59,7 +59,7 @@ Height  = 100    # Height of the simulation window
 
 win.graph(Width, Height)
 par(mfrow=c(1,2))
-  
+
 # --- Main simulation loop ----------------------------------------------------
 for(Time in 2:(EndTime/dT))
 {
@@ -67,9 +67,9 @@ for(Time in 2:(EndTime/dT))
   #ESpace[Time] = ESpace(TSpace[Time-1],DCoral[Time-1],DSponge[Time-1],DAlgae[Time-1])
   POM[Time] = POM[Time-1]+dtPOM(DSponge[Time-1],DCoral[Time-1],POM[Time-1])
   DOM[Time] = DOM[Time-1]+dtDOM(DCoral[Time-1],DAlgae[Time-1],DSponge[Time-1])
-  DCoral[Time] = DCoral[Time-1]+dtC(DCoral[Time-1])
-  DAlgae[Time] = DAlgae[Time-1]+dtA(DAlgae[Time-1])
-  DSponge[Time] = DSponge[Time-1]+dtS(DSponge[Time-1])
+  DCoral[Time] = DCoral[Time-1]+dtC(DCoral[Time-1],  DAlgae[Time-1], DSponge[Time-1])
+  DAlgae[Time] = DAlgae[Time-1]+dtA(DAlgae[Time-1], DCoral[Time-1], DSponge[Time-1])
+  DSponge[Time] = DSponge[Time-1]+dtS(DSponge[Time-1], DAlgae[Time-1], DCoral[Time-1])
   
   print(ESpace)
 }
